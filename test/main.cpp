@@ -3,19 +3,18 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <cstring>
 #include <string>
+#include <ctime>
+#include <algorithm>  
+#include <iterator>
 
 #define PORT 8800
 
 int main(int argc, char** argv) {
-    
     int server_fd, new_socket;
     long valread;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
-
-    std::string response = "HTTP/1.1 200 OK\nHello from server!";
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("In socket");
@@ -26,9 +25,9 @@ int main(int argc, char** argv) {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);
+    std::fill(std::begin(address.sin_zero), std::end(address.sin_zero), 0);
 
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0)
+    if (bind(server_fd, (struct sockaddr *)& address, sizeof address) < 0)
     {
         perror("In bind");
         exit(EXIT_FAILURE);
@@ -38,8 +37,8 @@ int main(int argc, char** argv) {
     {
         perror("In listen");
         exit(EXIT_FAILURE);
-    }
-    
+    } 
+
     while(1)
     {
         printf("\n+++++++ Waiting for new connection ++++++++\n\n");
@@ -48,7 +47,11 @@ int main(int argc, char** argv) {
             perror("In accept");
             exit(EXIT_FAILURE);
         }
-        
+
+        std::string response = "HTTP/1.1 200 OK\n";
+        // example time: Thu 19 Jun 18:50:45 CEST 2025
+        response += std::ctime((time_t*) std::time(nullptr));
+
         char buffer[30000] = {0};
         valread = read( new_socket , buffer, 30000);
         printf("Client't request: \n%s\n",buffer );

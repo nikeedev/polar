@@ -1,7 +1,12 @@
-SRC := src/main.cpp
+SRC := src/polar.cpp
 
-build: 
-	g++ $(SRC) -o polar -std=c++23
+lib: 
+	g++ $(SRC) -c -o out/polar -std=c++23
+	ar rvs out/libPolar.a out/polar
+	rm out/polar
 
-run: build
-	./polar
+test:
+	g++ -Isrc -Lout -lPolar -std=c++23 test/main.cpp -o out/test
+
+run: lib test 
+	./out/test

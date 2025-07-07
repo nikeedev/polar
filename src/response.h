@@ -1,0 +1,5 @@
+namespace Polar {
+    class Response {
+
+    };
+};
